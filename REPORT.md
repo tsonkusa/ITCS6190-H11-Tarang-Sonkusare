@@ -1,7 +1,7 @@
 # Hands-on L11: Machine Learning with MLlib
 
-**Name:** Tarang Sonkusare  
-**Student ID / Seed:** 801352372  
+**Name:** Tarang Sonkusare
+**Student ID / Seed:** 801352372
 **Email:** tsonkusa@charlotte.edu
 
 ## 1. How I Ran the Lab

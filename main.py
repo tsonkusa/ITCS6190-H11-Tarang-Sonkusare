@@ -153,7 +153,7 @@ def task2_score():
     RMSE of its predictions. Return the DataFrame you wrote.
     """
     # TODO
-    
+
     _, testDF = load_split()
 
     model = PipelineModel.load(model_dir)
