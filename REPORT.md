@@ -89,13 +89,15 @@ I saved the entire PipelineModel so that future predictions use the same preproc
 Model folder structure:
 
 ```text
-models/full/
+shared-folder/models/full/
 ├── metadata/
+│   ├── part-00000-47fe48ae-79fa-4bf3-88b2-d890fd798771-c000.txt
+│   └── _SUCCESS
 └── stages/
-    ├── 0_StringIndexerModel_...
-    ├── 1_OneHotEncoderModel_...
-    ├── 2_VectorAssembler_...
-    └── 3_LinearRegressionModel_...
+    ├── 0_StringIndexer_055acd314268/
+    ├── 1_OneHotEncoder_ef399af561b1/
+    ├── 2_VectorAssembler_f6e7fc01b730/
+    └── 3_LinearRegression_2bd1724034de/
 ```
 
 ### Q3. Why were fewer rows scored, and how would streaming work?
