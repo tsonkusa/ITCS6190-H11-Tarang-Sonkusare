@@ -154,7 +154,7 @@ def task2_score():
     """
     # TODO
 
-    _, testDF = load_split()
+    testDF = spark.read.parquet(f"{data_dir}/split/test")
 
     model = PipelineModel.load(model_dir)
 
