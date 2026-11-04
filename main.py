@@ -96,7 +96,52 @@ def task1_pipelines():
     categorical, numeric = feature_columns(trainDF)
     # TODO: indexer, encoder, assembler, LinearRegression; fit the Pipeline on trainDF;
     #       results.append(evaluate("full", <predictions on testDF>)); save the model
-    return None
+    index_cols = [c + "_index" for c in categorical]
+    encoded_cols = [c + "_ohe" for c in categorical]
+
+    indexer = StringIndexer(
+        inputCols=categorical,
+        outputCols=index_cols,
+        handleInvalid="skip"
+    )
+
+    encoder = OneHotEncoder(
+        inputCols=index_cols,
+        outputCols=encoded_cols
+    )
+
+    assembler = VectorAssembler(
+        inputCols=encoded_cols + numeric,
+        outputCol="features"
+    )
+
+    full_lr = LinearRegression(
+        featuresCol="features",
+        labelCol="price"
+    )
+
+    full_pipeline = Pipeline(
+        stages=[indexer, encoder, assembler, full_lr]
+    )
+
+    full_model = full_pipeline.fit(trainDF)
+
+    full_predictions = full_model.transform(testDF)
+    results.append(evaluate("full", full_predictions))
+
+    full_predictions.select(
+        "neighbourhood_cleansed",
+        "room_type",
+        "bedrooms",
+        "price",
+        sround(col("prediction"), 1).alias("prediction")
+    ).show(5, truncate=False)
+
+    full_model.write().overwrite().save(model_dir)
+    print(f"Full PipelineModel saved to {model_dir}")
+
+    return results
+
 
 
 # ---------------------------------------------------------------- Task 2: score with the saved model
@@ -108,7 +153,39 @@ def task2_score():
     RMSE of its predictions. Return the DataFrame you wrote.
     """
     # TODO
-    return None
+    
+    _, testDF = load_split()
+
+    model = PipelineModel.load(model_dir)
+
+    print("Loaded PipelineModel stages:")
+    for stage in model.stages:
+        print(stage.__class__.__name__)
+
+    predictions = model.transform(testDF)
+
+    rmse = rmse_eval.evaluate(predictions)
+    print(f"Loaded model RMSE: {rmse:.1f}")
+
+    scored = predictions.select(
+        "neighbourhood_cleansed",
+        "room_type",
+        "bedrooms",
+        "price",
+        sround(col("prediction"), 1).alias("prediction")
+    )
+
+    print(f"Test rows: {testDF.count()}")
+    print(f"Scored rows: {scored.count()}")
+
+    scored.show(5, truncate=False)
+
+    scored.coalesce(1).write.mode("overwrite") \
+        .option("header", True) \
+        .csv(f"{out_dir}/predictions")
+
+    return scored
+
 
 
 # ---------------------------------------------------------------- main
